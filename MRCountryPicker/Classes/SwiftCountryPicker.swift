@@ -46,12 +46,13 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     }
 
     func setup() {
-        countries = countryNamesByCode()
+        
 
         if let code = Locale.current.languageCode {
             self.selectedLocale = Locale(identifier: code)
         }
-
+        countries = countryNamesByCode()
+        
         super.dataSource = self
         super.delegate = self
     }
