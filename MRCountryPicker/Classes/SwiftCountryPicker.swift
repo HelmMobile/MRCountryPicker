@@ -5,25 +5,23 @@ import CoreTelephony
     func countryPhoneCodePicker(_ picker: MRCountryPicker, didSelectCountryWithName name: String, countryCode: String, phoneCode: String, flag: UIImage)
 }
 
-struct Country {
+class Country {
     var code: String?
     var name: String?
     var phoneCode: String?
-    var flag: UIImage?
+    lazy var flag: UIImage? = {
+        guard let code = self.code else { return nil }
+        return UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil)
+    }()
+    
 
     init(code: String?, name: String?, phoneCode: String?) {
         self.code = code
         self.name = name
         self.phoneCode = phoneCode
-        
-        guard let code = self.code else {
-            return
-        }
-        if let flag = UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil) {
-            self.flag = flag
-        }
-        else {
-            self.flag = nil
+        DispatchQueue.global(qos: .background).async {
+            guard let code = code else { return  }
+            self.flag = UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil)
         }
     }
 }
@@ -37,10 +35,12 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setup()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        setup()
     }
 
     open func setup() {

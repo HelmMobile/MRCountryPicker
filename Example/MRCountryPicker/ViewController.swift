@@ -11,7 +11,6 @@ class ViewController: UIViewController, MRCountryPickerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        countryPicker.setup()
         countryPicker.countryPickerDelegate = self
         countryPicker.showPhoneNumbers = true
         countryPicker.setCountry("SI")
