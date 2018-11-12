@@ -9,15 +9,22 @@ struct Country {
     var code: String?
     var name: String?
     var phoneCode: String?
-    var flag: UIImage? {
-        guard let code = self.code else { return nil }
-        return UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil)
-    }
+    var flag: UIImage?
 
     init(code: String?, name: String?, phoneCode: String?) {
         self.code = code
         self.name = name
         self.phoneCode = phoneCode
+        
+        guard let code = self.code else {
+            return
+        }
+        if let flag = UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil) {
+            self.flag = flag
+        }
+        else {
+            self.flag = nil
+        }
     }
 }
 
@@ -110,16 +117,27 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
                         guard let code = countryObj["code"] as? String, let phoneCode = countryObj["dial_code"] as? String, let name = countryObj["name"] as? String else {
                             return countries
                         }
-
-                        let country = Country(code: code, name: name, phoneCode: phoneCode)
-                        countries.append(country)
+                        if let locale = self.selectedLocale {
+                            let country = Country(code: code, name: locale.localizedString(forRegionCode: code) ?? name, phoneCode: phoneCode)
+                            countries.append(country)
+                        }
+                        else {
+                            let country = Country(code: code, name: name, phoneCode: phoneCode)
+                            countries.append(country)
+                        }
                     }
 
                 }
         } catch {
             return countries
         }
-        return countries
+        return countries.sorted(by: {
+            if let n0 = $0.name {
+                if let n1 = $1.name {
+                    return n0 < n1
+                }
+            }
+            return false})
     }
     
     // MARK: - Picker Methods
@@ -141,7 +159,7 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
             resultView = view as! SwiftCountryView
         }
         
-        resultView.setup(countries[row], locale: self.selectedLocale)
+        resultView.setup(countries[row])
         if !showPhoneNumbers {
             resultView.countryCodeLabel.isHidden = true
         }
