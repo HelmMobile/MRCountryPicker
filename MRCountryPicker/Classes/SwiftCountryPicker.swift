@@ -37,15 +37,13 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setup()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        setup()
     }
 
-    func setup() {
+    open func setup() {
         
 
         if let code = Locale.current.languageCode {
@@ -135,7 +133,7 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
         return countries.sorted(by: {
             if let n0 = $0.name {
                 if let n1 = $1.name {
-                    return n0 < n1
+                    return n0.lowercased().folding(options: .diacriticInsensitive, locale: .current) < n1.lowercased().folding(options: .diacriticInsensitive, locale: .current)
                 }
             }
             return false})
